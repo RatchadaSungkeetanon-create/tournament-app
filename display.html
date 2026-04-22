@@ -1,4 +1,106 @@
-document.getElementById("logo").src = team.logo;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DISPLAY</title>
 
-document.getElementById("country").innerHTML =
-  `<img src="${team.flag}" width="30"> ${team.country}`;
+<style>
+body{margin:0;background:#061826;color:white;font-family:sans-serif;overflow:hidden;}
+.header{text-align:center;font-size:30px;color:#00d4ff;padding:10px;}
+
+.main{display:grid;grid-template-columns:20% 60% 20%;height:70vh;}
+.panel{overflow:auto;}
+
+.team{background:#0f2c44;margin:4px;padding:6px;border-radius:6px;}
+
+.center{display:flex;justify-content:center;align-items:center;}
+
+.box{
+  width:60%;height:60%;
+  border:3px solid #00d4ff;
+  border-radius:20px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+
+.glow{animation:glow 1s infinite alternate;}
+@keyframes glow{
+  from{box-shadow:0 0 10px #00d4ff;}
+  to{box-shadow:0 0 50px #00d4ff;}
+}
+
+.groups{display:grid;grid-template-columns:repeat(4,1fr);height:30vh;}
+.group{border:1px solid #00d4ff;margin:5px;padding:5px;}
+.group.active{background:#003355;}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">TOURNAMENT DRAW</div>
+
+<div class="main">
+  <div id="allTeams" class="panel"></div>
+
+  <div class="center">
+    <div class="box" id="box">
+      <img id="logo" width="100">
+      <div id="name"></div>
+      <div id="uni"></div>
+      <div id="country"></div>
+    </div>
+  </div>
+
+  <div id="remaining" class="panel"></div>
+</div>
+
+<div class="groups">
+  <div class="group" id="A"><h3>A</h3></div>
+  <div class="group" id="B"><h3>B</h3></div>
+  <div class="group" id="C"><h3>C</h3></div>
+  <div class="group" id="D"><h3>D</h3></div>
+</div>
+
+<script>
+const channel=new BroadcastChannel("draw");
+let state={};
+
+channel.onmessage=e=>{
+  state=e.data;
+  render();
+};
+
+function render(){
+  document.getElementById("allTeams").innerHTML=
+    state.teams.map(t=>`<div class="team">${t.name}</div>`).join("");
+
+  document.getElementById("remaining").innerHTML=
+    state.remaining.map(t=>`<div class="team">${t.name}</div>`).join("");
+
+  ["A","B","C","D"].forEach(g=>{
+    let el=document.getElementById(g);
+    el.classList.toggle("active",state.currentGroup===g);
+
+    el.innerHTML="<h3>"+g+"</h3>"+
+      state.groups[g].map(t=>`<div>${t.name}</div>`).join("");
+  });
+
+  if(state.current){
+    document.getElementById("logo").src=state.current.logo;
+    document.getElementById("name").innerText=state.current.name;
+    document.getElementById("uni").innerText=state.current.university;
+    document.getElementById("country").innerHTML=
+      `<img src="${state.current.flag}" width="25"> ${state.current.country}`;
+  }
+
+  if(state.mode==="spin"){
+    document.getElementById("box").classList.add("glow");
+  } else {
+    document.getElementById("box").classList.remove("glow");
+  }
+}
+</script>
+
+</body>
+</html>
