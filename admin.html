@@ -3,26 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>TEAM SETUP</title>
-
 <style>
-body{
-  font-family:sans-serif;
-  background:#0b1c2c;
-  color:white;
-  text-align:center;
-}
-
-input, button {
-  padding:10px;
-  margin:5px;
-  width:80%;
-}
-
-.team {
-  background:#123;
-  margin:5px;
-  padding:5px;
-}
+body{font-family:sans-serif;background:#0b1c2c;color:white;text-align:center;}
+input,button{padding:10px;margin:5px;width:80%;}
+.team{background:#123;margin:5px;padding:5px;}
 </style>
 </head>
 
@@ -32,11 +16,12 @@ input, button {
 
 <input id="name" placeholder="Team Name">
 <input id="uni" placeholder="University">
-<input id="country" placeholder="Country (e.g. Thailand)">
+<input id="country" placeholder="Country (Thailand, Japan...)">
 <input type="file" id="logo">
 
 <button onclick="addTeam()">ADD TEAM</button>
-<button onclick="start()">START TOURNAMENT</button>
+<button onclick="start()">START</button>
+<button onclick="clearAll()">CLEAR ALL</button>
 
 <div id="list"></div>
 
@@ -45,13 +30,8 @@ let teams=[];
 
 function countryToCode(name){
   const map={
-    "thailand":"th",
-    "japan":"jp",
-    "korea":"kr",
-    "china":"cn",
-    "usa":"us",
-    "uk":"gb",
-    "australia":"au"
+    thailand:"th", japan:"jp", korea:"kr", china:"cn",
+    usa:"us", uk:"gb", australia:"au", vietnam:"vn"
   };
   return map[name.toLowerCase()] || "us";
 }
@@ -76,12 +56,27 @@ function addTeam(){
   if(file) reader.readAsDataURL(file);
 }
 
+function removeTeam(i){
+  if(confirm("Delete team?")){
+    teams.splice(i,1);
+    render();
+  }
+}
+
+function clearAll(){
+  if(confirm("Delete all?")){
+    teams=[];
+    render();
+  }
+}
+
 function render(){
   document.getElementById("list").innerHTML=
-    teams.map(t=>`
+    teams.map((t,i)=>`
       <div class="team">
         <img src="${t.logo}" width="30">
         ${t.name} (${t.country})
+        <button onclick="removeTeam(${i})">❌</button>
       </div>
     `).join("");
 }
