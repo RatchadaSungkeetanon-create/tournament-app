@@ -1,9 +1,75 @@
-let saved = JSON.parse(localStorage.getItem("teams") || "[]");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CONTROL</title>
 
-if(saved.length > 0){
-  state.teams = saved;
-} else {
-  alert("No teams found");
+<style>
+body{background:#0b1c2c;color:white;text-align:center;font-family:sans-serif;}
+button{width:90%;padding:20px;margin:10px;font-size:22px;background:#00d4ff;border:none;border-radius:10px;}
+</style>
+</head>
+
+<body>
+
+<h2>CONTROL PANEL</h2>
+
+<button onclick="draw()">DRAW</button>
+<button onclick="nextGroup()">NEXT GROUP</button>
+<button onclick="reset()">RESET</button>
+
+<script>
+const channel=new BroadcastChannel("draw");
+
+let state={
+  teams:[],
+  remaining:[],
+  groups:{A:[],B:[],C:[],D:[]},
+  current:null,
+  currentGroup:"A",
+  groupOrder:["A","B","C","D"],
+  index:0,
+  mode:"idle"
+};
+
+let saved=JSON.parse(localStorage.getItem("teams")||"[]");
+state.teams=saved;
+state.remaining=[...saved];
+
+function sync(){channel.postMessage(state);}
+
+function draw(){
+  if(state.remaining.length===0)return;
+
+  state.mode="spin";
+  sync();
+
+  setTimeout(()=>{
+    let i=Math.floor(Math.random()*state.remaining.length);
+    let team=state.remaining.splice(i,1)[0];
+
+    state.groups[state.currentGroup].push(team);
+    state.current=team;
+    state.mode="reveal";
+
+    sync();
+  },2000);
 }
 
-state.remaining = [...state.teams];
+function nextGroup(){
+  state.index++;
+  if(state.index<4){
+    state.currentGroup=state.groupOrder[state.index];
+  }
+  sync();
+}
+
+function reset(){
+  location.reload();
+}
+
+sync();
+</script>
+
+</body>
+</html>
