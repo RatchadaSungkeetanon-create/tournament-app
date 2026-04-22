@@ -1,0 +1,9 @@
+let saved = JSON.parse(localStorage.getItem("teams") || "[]");
+
+if(saved.length > 0){
+  state.teams = saved;
+} else {
+  alert("No teams found");
+}
+
+state.remaining = [...state.teams];

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TEAM SETUP</title>
+
+<style>
+body{
+  font-family:sans-serif;
+  background:#0b1c2c;
+  color:white;
+  text-align:center;
+}
+
+input, button {
+  padding:10px;
+  margin:5px;
+  width:80%;
+}
+
+.team {
+  background:#123;
+  margin:5px;
+  padding:5px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>TEAM SETUP</h2>
+
+<input id="name" placeholder="Team Name">
+<input id="uni" placeholder="University">
+<input id="country" placeholder="Country (e.g. Thailand)">
+<input type="file" id="logo">
+
+<button onclick="addTeam()">ADD TEAM</button>
+<button onclick="start()">START TOURNAMENT</button>
+
+<div id="list"></div>
+
+<script>
+let teams=[];
+
+function countryToCode(name){
+  const map={
+    "thailand":"th",
+    "japan":"jp",
+    "korea":"kr",
+    "china":"cn",
+    "usa":"us",
+    "uk":"gb",
+    "australia":"au"
+  };
+  return map[name.toLowerCase()] || "us";
+}
+
+function addTeam(){
+  let file=document.getElementById("logo").files[0];
+  let reader=new FileReader();
+
+  reader.onload=function(){
+    let team={
+      name:document.getElementById("name").value,
+      university:document.getElementById("uni").value,
+      country:document.getElementById("country").value,
+      logo:reader.result,
+      flag:`https://flagcdn.com/w40/${countryToCode(document.getElementById("country").value)}.png`
+    };
+
+    teams.push(team);
+    render();
+  };
+
+  if(file) reader.readAsDataURL(file);
+}
+
+function render(){
+  document.getElementById("list").innerHTML=
+    teams.map(t=>`
+      <div class="team">
+        <img src="${t.logo}" width="30">
+        ${t.name} (${t.country})
+      </div>
+    `).join("");
+}
+
+function start(){
+  localStorage.setItem("teams",JSON.stringify(teams));
+  window.open("display.html");
+  window.open("controller.html");
+}
+</script>
+
+</body>
+</html>
